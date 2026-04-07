@@ -7,7 +7,7 @@ TARGET  = mini_unionfs
 
 all: $(TARGET)
 
-$(TARGET): main.c
+$(TARGET): mini_unionfs.c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 clean:

@@ -328,27 +328,17 @@ static struct fuse_operations unionfs_oper = {
 
 int main(int argc, char *argv[]) {
 
-    // Find the mount point and the start of FUSE options
-    // Assuming FUSE options (starting with '-') come at the very end
-    int fuse_opt_start = argc;
-    for (int i = 1; i < argc; i++) {
-        if (argv[i][0] == '-') {
-            fuse_opt_start = i;
-            break;
-        }
-    }
-
-    if (fuse_opt_start < 5) {
+    if (argc < 5) {
         fprintf(stderr,
-        "Usage: %s <lower1> <lower2> ... <upper> <mount> [fuse_options]\n", argv[0]);
+        "Usage: %s <lower1> <lower2> ... <upper> <mount>\n", argv[0]);
         return 1;
     }
 
-    struct mini_unionfs_state *state = calloc(1, sizeof(*state));
+    struct mini_unionfs_state *state =
+        calloc(1, sizeof(*state));
 
-    state->upper_dir = realpath(argv[fuse_opt_start - 2], NULL);
-    char *mount_point = argv[fuse_opt_start - 1];
-    state->lower_count = fuse_opt_start - 3;
+    state->upper_dir = realpath(argv[argc - 2], NULL);
+    state->lower_count = argc - 3;
 
     for (int i = 0; i < state->lower_count; i++)
         state->lower_dirs[i] = realpath(argv[i + 1], NULL);
@@ -356,12 +346,8 @@ int main(int argc, char *argv[]) {
     pthread_t tid;
     pthread_create(&tid, NULL, dashboard_thread, NULL);
 
-    // Shift arguments for fuse_main
-    argv[1] = mount_point;
-    int new_argc = 2;
-    for (int i = fuse_opt_start; i < argc; i++) {
-        argv[new_argc++] = argv[i];
-    }
-    
-    return fuse_main(new_argc, argv, &unionfs_oper, state);
+    argv[1] = argv[argc - 1];
+    argc = 2;
+
+    return fuse_main(argc, argv, &unionfs_oper, state);
 }

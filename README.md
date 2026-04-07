@@ -27,10 +27,12 @@ Implemented in both **Python** and **C**, and fully testable via **Docker**.
 
 | Feature | Description |
 |---|---|
-| **Layer Visibility** | Files in the read-only `lower_dir` are transparently visible through the unified mount point. |
-| **Copy-on-Write (CoW)** | Modifying a lower-layer file automatically copies it to the `upper_dir` before mutation — the original remains untouched. |
-| **Whiteout Mechanism** | Deleting a lower-layer file creates a `.wh.<filename>` marker in `upper_dir`, hiding it from the merged view without altering the base layer. |
-| **Directory Union** | `readdir` merges entries from both layers, respecting whiteouts and deduplication. |
+| **Multiple Lower Layers** | Stack an arbitrary number of read-only `lower_dir` layers. The upper-most layer overrides duplicates, mimicking advanced container union systems. |
+| **Layer Visibility** | Files across all layers are transparently merged into a unified mount point. |
+| **Copy-on-Write (CoW)** | Modifying any lower-layer file automatically copies it to the `upper_dir` before mutation — the originals remain untouched. |
+| **Whiteout Mechanism** | Deleting a lower-layer file creates a `.wh.<filename>` marker in `upper_dir`, hiding it from the merged view without altering the base layers. |
+| **Real-time Dashboard** | C implementation features an interactive metrics thread tracking reads, writes, and whiteout activity live. |
+| **FUSE 3 Support** | Complete compatibility with the newer `fuse3` / `libfuse3` API. |
 
 ---
 
@@ -154,10 +156,10 @@ mkdir -p test_env/lower test_env/upper test_env/mnt
 echo "Hello from the base layer" > test_env/lower/hello.txt
 
 # Mount the filesystem (runs in foreground)
-python3 main.py test_env/lower test_env/upper test_env/mnt
+python3 main.py test_env/lower1 test_env/lower2 test_env/upper test_env/mnt
 ```
 
-**Usage**: `python3 main.py <lower_dir> <upper_dir> <mount_point>`
+**Usage**: `python3 main.py <lower1> [lower2 ...] <upper_dir> <mount_point>`
 
 ### C (Native)
 
@@ -166,14 +168,14 @@ python3 main.py test_env/lower test_env/upper test_env/mnt
 make
 
 # Create test directories
-mkdir -p test_env/lower test_env/upper test_env/mnt
-echo "Hello from the base layer" > test_env/lower/hello.txt
+mkdir -p test_env/lower1 test_env/lower2 test_env/upper test_env/mnt
+echo "Hello from the base layer" > test_env/lower1/hello.txt
 
 # Mount the filesystem (-f for foreground)
-./mini_unionfs test_env/lower test_env/upper test_env/mnt -f
+./mini_unionfs test_env/lower1 test_env/lower2 test_env/upper test_env/mnt -f
 ```
 
-**Usage**: `./mini_unionfs <lower_dir> <upper_dir> <mount_point> [fuse_options]`
+**Usage**: `./mini_unionfs <lower1> [lower2 ...] <upper_dir> <mount_point> [fuse_options]`
 
 ### Unmounting
 

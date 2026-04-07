@@ -1,3 +1,5 @@
 .venv
 test_env
 unionfs_test_env
+mini_unionfs
+*.o
