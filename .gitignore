@@ -1,0 +1,15 @@
+# Compiled binary
+mini_unionfs
+
+# Virtual environment
+.venv/
+
+# macOS
+.DS_Store
+
+# Test artifacts
+test_env/
+unionfs_test_env/
+
+# PDF content extract
+pdf_content.txt
