@@ -34,17 +34,12 @@ struct metrics {
 /* ================= DASHBOARD ================= */
 
 void *dashboard_thread(void *arg) {
+    (void)arg;
     while (1) {
-        system("clear");
-
-        printf("\nMini-UnionFS Dashboard\n");
-        printf("---------------------------\n");
-        printf("Upper Reads   : %d\n", m.upper_reads);
-        printf("Lower Reads   : %d\n", m.lower_reads);
-        printf("Copy-on-Write : %d\n", m.cow);
-        printf("Whiteouts     : %d\n", m.whiteouts);
-
-        sleep(2);
+        // Removed system("clear") to prevent wiping test logs
+        printf("\n[STATS] Upper: %d, Lower: %d, COW: %d, Whiteouts: %d\n", 
+               m.upper_reads, m.lower_reads, m.cow, m.whiteouts);
+        sleep(5);
     }
     return NULL;
 }
@@ -317,6 +312,16 @@ static int unionfs_unlink(const char *path) {
 
 /* ================= MAIN ================= */
 
+static void unionfs_destroy(void *private_data) {
+    (void)private_data;
+    printf("\n--- Final Mini-UnionFS Summary ---\n");
+    printf("Upper Reads   : %d\n", m.upper_reads);
+    printf("Lower Reads   : %d\n", m.lower_reads);
+    printf("Copy-on-Write : %d\n", m.cow);
+    printf("Whiteouts     : %d\n", m.whiteouts);
+    printf("----------------------------------\n");
+}
+
 static struct fuse_operations unionfs_oper = {
     .getattr = unionfs_getattr,
     .readdir = unionfs_readdir,
@@ -324,6 +329,7 @@ static struct fuse_operations unionfs_oper = {
     .read    = unionfs_read,
     .write   = unionfs_write,
     .unlink  = unionfs_unlink,
+    .destroy = unionfs_destroy,
 };
 
 int main(int argc, char *argv[]) {

@@ -20,14 +20,9 @@ metrics = {
 
 def dashboard_thread():
     while True:
-        os.system('clear')
-        print("\nMini-UnionFS Dashboard (Python)")
-        print("-------------------------------")
-        print(f"Upper Reads   : {metrics['upper_reads']}")
-        print(f"Lower Reads   : {metrics['lower_reads']}")
-        print(f"Copy-on-Write : {metrics['cow']}")
-        print(f"Whiteouts     : {metrics['whiteouts']}")
-        time.sleep(2)
+        # Removed os.system('clear') to prevent wiping test logs
+        print(f"\n[STATS] Upper: {metrics['upper_reads']}, Lower: {metrics['lower_reads']}, COW: {metrics['cow']}, Whiteouts: {metrics['whiteouts']}")
+        time.sleep(5)
 
 class MiniUnionFS(Operations):
     def __init__(self, lower_dirs, upper_dir):
@@ -254,6 +249,14 @@ class MiniUnionFS(Operations):
 
     def fsync(self, path, fdatasync, fh):
         return self.flush(path, fh)
+
+    def destroy(self, path):
+        print("\n--- Final Mini-UnionFS Summary (Python) ---")
+        print(f"Upper Reads   : {metrics['upper_reads']}")
+        print(f"Lower Reads   : {metrics['lower_reads']}")
+        print(f"Copy-on-Write : {metrics['cow']}")
+        print(f"Whiteouts     : {metrics['whiteouts']}")
+        print("-------------------------------------------")
 
 def main():
     if len(sys.argv) < 4:
