@@ -1,7 +1,7 @@
 CC      = gcc
 
 CFLAGS  = -Wall -Wextra -g -D_FILE_OFFSET_BITS=64 $(shell pkg-config --cflags fuse3)
-LDFLAGS = $(shell pkg-config --libs fuse3) -lpthread
+LDFLAGS = $(shell pkg-config --libs fuse3)
 
 TARGET  = mini_unionfs
 

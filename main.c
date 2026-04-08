@@ -32,17 +32,7 @@ struct metrics {
 } m = {0};
 
 /* ================= DASHBOARD ================= */
-
-void *dashboard_thread(void *arg) {
-    (void)arg;
-    while (1) {
-        // Removed system("clear") to prevent wiping test logs
-        printf("\n[STATS] Upper: %d, Lower: %d, COW: %d, Whiteouts: %d\n", 
-               m.upper_reads, m.lower_reads, m.cow, m.whiteouts);
-        sleep(5);
-    }
-    return NULL;
-}
+// Periodic stats removed; final summary printed via destroy()
 
 /* ================= PATH HELPERS ================= */
 
@@ -358,9 +348,6 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < state->lower_count; i++)
         state->lower_dirs[i] = realpath(argv[i + 1], NULL);
-
-    pthread_t tid;
-    pthread_create(&tid, NULL, dashboard_thread, NULL);
 
     // Shift arguments for fuse_main
     argv[1] = mount_point;

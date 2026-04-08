@@ -6,8 +6,6 @@ from __future__ import absolute_import
 import os
 import sys
 import errno
-import threading
-import time
 from fuse import FUSE, FuseOSError, Operations
 
 # Metrics matching C dashboard
@@ -18,11 +16,6 @@ metrics = {
     'whiteouts': 0
 }
 
-def dashboard_thread():
-    while True:
-        # Removed os.system('clear') to prevent wiping test logs
-        print(f"\n[STATS] Upper: {metrics['upper_reads']}, Lower: {metrics['lower_reads']}, COW: {metrics['cow']}, Whiteouts: {metrics['whiteouts']}")
-        time.sleep(5)
 
 class MiniUnionFS(Operations):
     def __init__(self, lower_dirs, upper_dir):
@@ -277,9 +270,6 @@ def main():
         
     if not os.path.exists(mount_point):
         os.makedirs(mount_point)
-
-    t = threading.Thread(target=dashboard_thread, daemon=True)
-    t.start()
 
     FUSE(MiniUnionFS(lower_dirs, upper_dir), mount_point, nothreads=True, foreground=True)
 
